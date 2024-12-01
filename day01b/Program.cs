@@ -2,7 +2,7 @@
     Görkem Paçacı
     2024-12-01 AoC day 1
 */
-using System.Collections;
+
 List<int> left = new(), right = new();
 foreach(var line in File.ReadAllLines("input.txt"))
 {
