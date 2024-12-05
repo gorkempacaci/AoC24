@@ -1,3 +1,4 @@
+% runs on SWI-Prolog / Gorkem Pacaci AoC2024 Day 3
 :- use_module(library(dcg/basics)).
 :- use_module(library(pure_input)).
 mul(R) --> `mul(`, integer(X), `,`, integer(Y), `)`, {R is X*Y}.
@@ -5,7 +6,7 @@ part1(0) --> [].
 part1(R) --> string(_), mul(A), string(_), part1(B), {R is A+B}.
 :- phrase_from_file(part1(X), 'input.txt'),
    write('Part 1:'), write(X), nl.
-
+% Part 2
 without(_) --> [].
 without(Thing) --> Thing, {!, fail}.
 without(Thing) --> [_], without(Thing).
