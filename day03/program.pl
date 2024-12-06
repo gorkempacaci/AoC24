@@ -11,11 +11,11 @@ without(_) --> [].
 without(Thing) --> Thing, {!, fail}.
 without(Thing) --> [_], without(Thing).
 do(0) --> [].
-do(R) --> without(`don't()`), mul(A), !, do(B), {R is A+B}.
-do(R) --> without(mul(_)), (`don't()`, !, dont(R)).
+do(R) --> without(`don't()`), mul(A), do(B), {R is A+B}.
+do(R) --> without(mul(_)), (`don't()`, dont(R)).
 do(0) --> string(_), [].
 dont(0) --> [].
-dont(R) --> string(_), `do()`, !, do(R).
+dont(R) --> string(_), `do()`, do(R).
 dont(0) --> string(_), [].
 :- phrase_from_file(do(X), 'input.txt'),
    write('Part 2:'), write(X), nl.
