@@ -1,8 +1,8 @@
 ﻿/*
     Görkem Paçacı
-    AoC24 day 6
+    AoC24 day 7
 */
-using System.Numerics;
+
 
 part1();
 

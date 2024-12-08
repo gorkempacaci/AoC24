@@ -2,7 +2,6 @@
     Görkem Paçacı
     AoC24 day 4
 */
-using System.Data.Common;
 
 part1();
 part2();

@@ -2,9 +2,6 @@
     Görkem Paçacı
     AoC24 day 6
 */
-using System.ComponentModel.DataAnnotations;
-using System.Dynamic;
-using System.Numerics;
 
 part1();
 
