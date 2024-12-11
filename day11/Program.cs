@@ -40,7 +40,6 @@ void part1()
         }
         nums = lst;
         lst = new();
-        Console.WriteLine("Step "+i);
     }
     Console.WriteLine("Part 1:" + nums.Count);
 }
@@ -49,15 +48,17 @@ void part1()
 void part2()
 {
     List<long> nums = File.ReadAllText("input.txt").Split(' ').Select(s => long.Parse(s)).ToList();
-    var dict = nums.ToDictionary(n => n, n=>1L);
+    SafeDictionary<long,long> dict = new();
+    foreach(var n in nums)
+        dict[n] = 1;
 
     for (int i = 0; i < 75; i++)
     {
-        Dictionary<long, long> newDict = new();
+        SafeDictionary<long,long> newDict = new();
         foreach (var n in dict.Keys)
         {
             if (n == 0)
-                newDict[1] = newDict.GetSafe(1)+dict[0];
+                newDict[1] += dict[0];
             else
             {
                 int digitsN = (int)Math.Floor(Math.Log10(n))+1;
@@ -66,10 +67,10 @@ void part2()
                     long halfWayZeroed = (long)Math.Pow(10, digitsN/2);
                     long number2 = n % halfWayZeroed;
                     long number1 = (n - number2)/halfWayZeroed;
-                    newDict[number1] = newDict.GetSafe(number1) + dict[n];
-                    newDict[number2] = newDict.GetSafe(number2) + dict[n];
+                    newDict[number1] += dict[n];
+                    newDict[number2] += dict[n];
                 }
-                else newDict[n*2024] = newDict.GetSafe(n*2024) + dict[n];
+                else newDict[n*2024] += dict[n];
             }
         }
         dict=newDict;
@@ -78,12 +79,19 @@ void part2()
     Console.WriteLine("Part 2:" + dict.Values.Sum());
 }
 
-public static class DictionaryExtension
+public class SafeDictionary<TKey, TValue> : Dictionary<TKey, TValue> where TKey:notnull where TValue:notnull 
 {
-    public static TValue GetSafe<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TValue:notnull
+    public new TValue this[TKey key]
     {
-        if (dict.TryGetValue(key, out TValue value))
-            return value;
-        else return default;
+        get
+        {
+            if (base.TryGetValue(key, out TValue val))
+                return val;
+            else return default!;
+        }
+        set
+        {
+            base[key] = value;
+        }
     }
 }
