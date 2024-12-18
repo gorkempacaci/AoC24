@@ -61,6 +61,7 @@ minCost(PrizeOffset, machine(a(Xa,Ya),b(Xb,Yb),prize(Xp,Yp)), Cost) :-
 
 main :- 
     phrase_from_file(file(X), 'input.txt'),
+    format("Done reading from the file.~N", []),
     maplist(minCost(0), X, MinCosts),
     sumlist(MinCosts, TotCost),
     format("Part 1, Total Cost: ~p~N", TotCost),
