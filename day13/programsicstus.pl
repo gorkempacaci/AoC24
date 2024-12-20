@@ -4,6 +4,17 @@
 
 :- use_module(library(clpfd)).
 :- use_module(library(lists)).
+:- use_module(library(chr)).
+
+% Fact: Only some examples trigger the lag, most take 0ms.
+
+% Theory: maplist is slow. NOT. Used simple recursion.
+% Theory: GC is triggered. NOT. Disabled GC.
+% Slow on ARM? Same on Windows. 
+
+:- set_prolog_flag(gc,off).
+%:- chr_flag(toplevel_show_store, _, on).
+
 
 read_file_to_string(File, String) :-
     open(File, read, Stream),
@@ -52,20 +63,35 @@ file([machine(A,B,P)|Ms]) --> machine(A,B,P), blanks, file(Ms).
 
 % === MODEL
 
-minCost(PrizeOffset, machine(a(Xa,Ya),b(Xb,Yb),prize(Xp,Yp)), Cost) :-
+minCost(PrizeOffset, machine(a(Xa,Ya),b(Xb,Yb),prize(Xp,Yp)), A, B, Cost) :-
     A in 0..sup, B in 0..sup,
     Xp + PrizeOffset #= A*Xa + B*Xb,
     Yp + PrizeOffset #= A*Ya + B*Yb,
     Cost #= A*3 + B,
     labeling([minimize(Cost)], [A,B,Cost]) -> true; Cost=0.
 
+doAll(_, [], []).
+doAll(PrizeOffset, [M|Machines], [C|Costs]) :-
+    statistics(runtime, [Start,_]),
+    minCost(PrizeOffset, M, A, B, C),
+    statistics(runtime, [Stop,_]),
+    T is Stop-Start,
+    M=machine(a(Xa,Ya),b(Xb,Yb),prize(Xp,Yp)),
+    fd_statistics(resumptions, RS),
+    fd_statistics(entailments, ET),
+    fd_statistics(prunings, PN),
+    fd_statistics(backtracks, BT),
+    fd_statistics(constraints, CT),
+    format("~w;~w;~w;~w;~w;~w;~w;~w;~w;~w;~w;~w;~w;~w;~w~N", [Xa,Ya, Xb,Yb, Xp,Yp, A,B,C, T, RS,ET,PN,BT,CT]),
+    doAll(PrizeOffset, Machines, Costs).
+
 main :- 
-    phrase_from_file(file(X), 'input.txt'),
+    phrase_from_file(file(Xs), 'input.txt'),
     format("Done reading from the file.~N", []),
-    maplist(minCost(0), X, MinCosts),
+    doAll(0, Xs, MinCosts),
     sumlist(MinCosts, TotCost),
     format("Part 1, Total Cost: ~p~N", TotCost),
-    maplist(minCost(10000000), X, MinCosts2),
+    doAll(10000000, Xs, MinCosts2),
     sumlist(MinCosts2, TotCost2),
     format("Part 2, Total Cost: ~p~N", TotCost2),
     fd_statistics,
